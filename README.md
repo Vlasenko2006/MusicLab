@@ -105,20 +105,11 @@ python inference_cascade.py \
 | GAN weight | 0.15 | Adversarial loss |
 | Correlation penalty | 0.5 | Anti-modulation |
 
-### Advanced: Push Complementarity
-
-To increase mask separation (74% → 90%+):
-
-```bash
-bash run_train_creative_agent_push_complementarity.sh
-```
-
-This increases `mask_reg_weight` from 0.1 to 0.5 for stronger complementarity pressure.
 
 ## Project Structure
 
 ```
-Jingle_D/
+PowrMuse/
 ├── model_simple_transformer.py    # 2-stage cascade architecture
 ├── creative_agent.py              # Attention-based mask generator
 ├── audio_discriminator.py         # GAN discriminator
@@ -134,12 +125,7 @@ Jingle_D/
 ├── dataset_wav_pairs.py           # Dataset loader
 ├── create_dataset_pairs_wav.py    # Dataset creation
 │
-├── run_train_creative_agent_fixed.sh           # Main training script
-├── run_train_creative_agent_resume.sh          # Resume from checkpoint
-├── run_train_creative_agent_push_complementarity.sh  # High complementarity
-│
-├── sync_to_remote.sh              # Sync to SLURM cluster
-├── verify_sync.sh                 # Check sync status
+├── run_train_creative_agent.sh           # Main training script
 ├── view_mlflow_data.py            # View training metrics
 │
 └── README.md                      # This file
@@ -170,43 +156,6 @@ python create_dataset_pairs_wav.py \
   --duration 16 \
   --sample_rate 24000
 ```
-
-## Training Progress
-
-**Current Status** (Epoch 51/200):
-- Validation loss: 0.527
-- Complementarity: 74%
-- Mask balance: 50/50 ✅
-- Gradient norms: 3-8 (stable)
-- Discriminator accuracy: 84%
-
-**Training History**:
-- Epoch 1-20: Complementarity 75% → 87%, val_loss 0.65 → 0.49
-- Epoch 21-51: Stuck at 74% complementarity (mask_reg_weight too weak)
-
-## Key Features
-
-### Gradient Stability
-- **Problem**: Original 3-stage architecture had gradient explosion (16.71 → NaN)
-- **Solution**: Reduced to 2-stage cascade with spectral normalization
-- **Result**: Stable training with gradient norms 1-8
-
-### DDP Multi-GPU Support
-- **Problem**: Workers timeout with "1/4 clients joined" error
-- **Solution**: Fixed MASTER_PORT handling to ensure consistent port across workers
-- **Result**: All 4 GPUs successfully join process group
-
-### Complementary Masking
-- **Mechanism**: Creative agent learns to generate complementary masks via cross-attention
-- **Goal**: Input mask extracts rhythm, target mask extracts harmony/melody
-- **Metric**: Complementarity = 1 - overlap (target: 90%+)
-
-## Documentation
-
-- `SESSION_CHECKPOINT.md` - Detailed training history
-- `GRADIENT_EXPLOSION_FIX.md` - Architecture debugging notes
-- `README_CREATIVE_AGENT.md` - Creative agent design
-- `README_LEVANTE.md` - SLURM cluster setup
 
 ## Hardware Requirements
 
