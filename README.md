@@ -1,6 +1,12 @@
-# Jingle_D: Creative Audio Mixing with Cascade Transformers
+# MusicLab
 
-A PyTorch implementation of a 2-stage cascade transformer for creative audio mixing with attention-based complementary masking.
+Meet my MusicLab — a powerful end-to-end GAN and GenAI free production-ready music experimentation platform for comercial and private use. Upload your favorite 2 music patterns, choose the parts you like the most and let the MusicLab generate a ginle of those combining them together. 
+MusicLab equipped with interactive multilingual Chat-bot assistant “Rita”, and on-prem/cloud model inference
+Inside Music Lab (the backend) is a creative agent NN that masks out important music parts, Microsoft EnCodec encoder followeed by cascade of 12-layer transformer blocks (similar to modern LLMs)   - they do the fusion magic, and Microsoft EnCodec decoder.
+How to use it on your own? You can use it anytime, just  follow this link and enjoy.
+
+You want to use it locally or deploy on AWS for your own needs? Just download the code and ask me for a check point and be ready to use. The MusicLab docker scripts and and fits on t2.micro iAWS Free Tier instances. See the deployment instructions 
+
 
 ## Overview
 
