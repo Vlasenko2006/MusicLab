@@ -1,0 +1,18 @@
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Audio processing
+soundfile==0.12.1
+librosa==0.10.1
+encodec==0.1.1
+
+# Machine Learning - CPU only for inference (saves 3GB+ vs CUDA)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.0
+numpy==1.24.3
+
+# Chatbot
+groq>=0.11.0
+pyyaml==6.0.1

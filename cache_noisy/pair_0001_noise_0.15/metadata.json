@@ -1,0 +1,15 @@
+{
+  "sample_name": "pair_0001",
+  "noise_fraction": 0.15,
+  "num_variants": 5,
+  "encoding_shape_input": [
+    1,
+    128,
+    1200
+  ],
+  "encoding_shape_target": [
+    1,
+    128,
+    1200
+  ]
+}

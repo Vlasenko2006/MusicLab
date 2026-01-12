@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicLab - AI Music Generation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Floating Musical Notes Background -->
+    <div class="floating-notes">
+        <div class="note note-1">♪</div>
+        <div class="note note-2">♫</div>
+        <div class="note note-3">𝄞</div>
+        <div class="note note-4">♪</div>
+        <div class="note note-5">♫</div>
+        <div class="note note-6">𝄞</div>
+        <div class="note note-7">♪</div>
+        <div class="note note-8">♫</div>
+        <div class="note note-9">𝄞</div>
+        <div class="note note-10">♪</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 -12 30 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Two connected eighth notes with large horizontal beam -->
+                        <g transform="translate(20, 0)">
+                            <!-- First note head (left) -->
+                            <ellipse cx="-5" cy="8" rx="3.5" ry="2.8" fill="white" transform="rotate(-20 -5 8)"/>
+                            <!-- Second note head (right) -->
+                            <ellipse cx="5" cy="8" rx="3.5" ry="2.8" fill="white" transform="rotate(-20 5 8)"/>
+                            <!-- First stem (left, 40% shorter tail) -->
+                            <rect x="-2" y="-10" width="1.5" height="18" fill="white"/>
+                            <!-- Second stem (right, 40% shorter tail) -->
+                            <rect x="7.5" y="-10" width="1.5" height="18" fill="white"/>
+                            <!-- Large horizontal beam at top (20% larger) -->
+                            <rect x="-2" y="-10" width="11" height="4.8" fill="white"/>
+                        </g>
+                        <!-- Cube -->
+                        <path d="M20 14L5 18.9V30.1L20 35L35 30.1V18.9L20 14Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M20 24.5V35" stroke="currentColor" stroke-width="2"/>
+                        <path d="M5 18.9L20 24.5L35 18.9" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>MusicLab</h1>
+                </div>
+                <nav class="nav">
+                    <a href="#" class="nav-link" id="contact-btn" data-i18n="nav.contact">Contact</a>
+                    <a href="#" class="nav-link" id="examples-btn" data-i18n="nav.examples">Examples</a>
+                    <a href="#" class="nav-link" id="about-btn" data-i18n="nav.about">About</a>
+                    <div class="language-selector">
+                        <button class="lang-btn" id="lang-btn">
+                            <span id="current-lang">EN</span>
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown" id="lang-dropdown">
+                            <button class="lang-option" data-lang="en">English</button>
+                            <button class="lang-option" data-lang="de">Deutsch</button>
+                            <button class="lang-option" data-lang="ru">Русский</button>
+                            <button class="lang-option" data-lang="fr">Français</button>
+                            <button class="lang-option" data-lang="es">Español</button>
+                            <button class="lang-option" data-lang="pt">Português</button>
+                            <button class="lang-option" data-lang="ar">العربية</button>
+                            <button class="lang-option" data-lang="zh">中文</button>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h2 class="hero-title" data-i18n="hero.title">Create Unique Music with AI</h2>
+                <p class="hero-subtitle" data-i18n="hero.subtitle">Upload two tracks and let AI blend them into something new</p>
+            </section>
+
+            <!-- Studio Section -->
+            <section class="studio">
+                <div class="studio-grid">
+                    <!-- Track 1 -->
+                    <div class="track-card">
+                        <div class="track-header">
+                            <div class="track-number">01</div>
+                            <h3 class="track-title" data-i18n="track.title1">Input Track A</h3>
+                            <div class="track-status" id="status-track1">
+                                <span class="status-indicator"></span>
+                                <span class="status-text" data-i18n="track.noFile">No file uploaded</span>
+                            </div>
+                        </div>
+
+                        <div class="upload-area" id="upload-area-1">
+                            <input type="file" id="file-input-1" accept="audio/*" hidden>
+                            <label for="file-input-1" class="upload-label">
+                                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span class="upload-text" data-i18n="track.uploadText">Drop audio file here or click to upload</span>
+                                <span class="upload-hint" data-i18n="track.uploadHint">MP3, WAV, OGG • Min 16 seconds</span>
+                            </label>
+                        </div>
+
+                        <div class="track-player" id="player-1" style="display: none;">
+                            <div class="waveform-container">
+                                <canvas id="waveform-1" class="waveform-canvas"></canvas>
+                                <div class="selection-overlay" id="selection-1"></div>
+                                <div class="time-markers" id="markers-1"></div>
+                            </div>
+
+                            <div class="player-controls">
+                                <button class="btn-icon btn-play" id="play-btn-1">
+                                    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                                        <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+                                    </svg>
+                                </button>
+                                <div class="time-display">
+                                    <span id="current-time-1">0:00</span>
+                                    <span class="time-separator">/</span>
+                                    <span id="duration-1">0:00</span>
+                                </div>
+                                <div class="volume-control">
+                                    <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                    </svg>
+                                    <input type="range" class="volume-slider" id="volume-1" min="0" max="100" value="80">
+                                </div>
+                            </div>
+
+                            <div class="selection-controls">
+                                <div class="selection-info">
+                                    <label class="selection-label">Selected Pattern:</label>
+                                    <div class="selection-range">
+                                        <input type="number" id="start-time-1" class="time-input" value="0" min="0" step="0.1">
+                                        <span class="range-separator">→</span>
+                                        <input type="number" id="end-time-1" class="time-input" value="16" min="16" step="0.1">
+                                        <span class="time-unit">sec</span>
+                                    </div>
+                                    <div class="selection-duration" id="selection-duration-1">16.0 sec</div>
+                                </div>
+                                <input type="range" id="slider-1" class="pattern-slider" min="0" max="100" value="0" step="0.1">
+                            </div>
+
+                            <div class="track-actions">
+                                <button class="btn btn-secondary" id="preview-btn-1">
+                                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                    </svg>
+                                    <span data-i18n="player.playSelection">Play Selection</span>
+                                </button>
+                                <button class="btn btn-ghost" id="clear-btn-1">
+                                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M3 6h18"/>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                    <span data-i18n="player.clearTrack">Clear Track</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Track 2 -->
+                    <div class="track-card">
+                        <div class="track-header">
+                            <div class="track-number">02</div>
+                            <h3 class="track-title" data-i18n="track.title2">Input Track B</h3>
+                            <div class="track-status" id="status-track2">
+                                <span class="status-indicator"></span>
+                                <span class="status-text" data-i18n="track.noFile">No file uploaded</span>
+                            </div>
+                        </div>
+
+                        <div class="upload-area" id="upload-area-2">
+                            <input type="file" id="file-input-2" accept="audio/*" hidden>
+                            <label for="file-input-2" class="upload-label">
+                                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span class="upload-text" data-i18n="track.uploadText">Drop audio file here or click to upload</span>
+                                <span class="upload-hint" data-i18n="track.uploadHint">MP3, WAV, OGG • Min 16 seconds</span>
+                            </label>
+                        </div>
+
+                        <div class="track-player" id="player-2" style="display: none;">
+                            <div class="waveform-container">
+                                <canvas id="waveform-2" class="waveform-canvas"></canvas>
+                                <div class="selection-overlay" id="selection-2"></div>
+                                <div class="time-markers" id="markers-2"></div>
+                            </div>
+
+                            <div class="player-controls">
+                                <button class="btn-icon btn-play" id="play-btn-2">
+                                    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                                        <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+                                    </svg>
+                                </button>
+                                <div class="time-display">
+                                    <span id="current-time-2">0:00</span>
+                                    <span class="time-separator">/</span>
+                                    <span id="duration-2">0:00</span>
+                                </div>
+                                <div class="volume-control">
+                                    <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                    </svg>
+                                    <input type="range" class="volume-slider" id="volume-2" min="0" max="100" value="80">
+                                </div>
+                            </div>
+
+                            <div class="selection-controls">
+                                <div class="selection-info">
+                                    <label class="selection-label">Selected Pattern:</label>
+                                    <div class="selection-range">
+                                        <input type="number" id="start-time-2" class="time-input" value="0" min="0" step="0.1">
+                                        <span class="range-separator">→</span>
+                                        <input type="number" id="end-time-2" class="time-input" value="16" min="16" step="0.1">
+                                        <span class="time-unit">sec</span>
+                                    </div>
+                                    <div class="selection-duration" id="selection-duration-2">16.0 sec</div>
+                                </div>
+                                <input type="range" id="slider-2" class="pattern-slider" min="0" max="100" value="0" step="0.1">
+                            </div>
+
+                            <div class="track-actions">
+                                <button class="btn btn-secondary" id="preview-btn-2">
+                                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                    </svg>
+                                    <span data-i18n="player.playSelection">Play Selection</span>
+                                </button>
+                                <button class="btn btn-ghost" id="clear-btn-2">
+                                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M3 6h18"/>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                    <span data-i18n="player.clearTrack">Clear Track</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Message (shown when waiting for uploads) -->
+                <div class="status-message-section" id="status-message" style="display: block;">
+                    <div class="status-message-card">
+                        <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        <h3 class="status-message-title" data-i18n="upload.instruction">Upload Two Tracks to Begin</h3>
+                        <p class="status-message-text" data-i18n="upload.instructionDetail">Select 16+ second audio files (MP3, WAV, OGG) for Track A and Track B. The Generate button will appear automatically.</p>
+                    </div>
+                </div>
+
+                <!-- Generate Section -->
+                <div class="generate-section" id="generate-section" style="display: none;">
+                    <div class="generate-card">
+                        <div class="generate-header">
+                            <h3 class="generate-title">Ready to Generate</h3>
+                            <p class="generate-subtitle">Your AI will blend these two patterns into unique music</p>
+                        </div>
+                        <div class="generate-actions">
+                            <button class="btn btn-primary btn-large" id="generate-btn">
+                                <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                                Generate Music
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Section -->
+                <div class="loading-section" id="loading-section" style="display: none;">
+                    <div class="loading-card">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                        <h3 class="loading-title">Generating Your Music...</h3>
+                        <p class="loading-subtitle">Our AI is blending your patterns</p>
+                        <div class="loading-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <span class="progress-text" id="progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div class="result-section" id="result-section" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                            <h3 class="result-title">Your Music is Ready!</h3>
+                            <p class="result-subtitle">Listen to your AI-generated track</p>
+                        </div>
+
+                        <div class="result-player">
+                            <div class="waveform-container">
+                                <canvas id="waveform-result" class="waveform-canvas"></canvas>
+                            </div>
+                            <div class="player-controls">
+                                <button class="btn-icon btn-play" id="play-btn-result">
+                                    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                                        <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+                                    </svg>
+                                </button>
+                                <div class="time-display">
+                                    <span id="current-time-result">0:00</span>
+                                    <span class="time-separator">/</span>
+                                    <span id="duration-result">0:00</span>
+                                </div>
+                                <div class="volume-control">
+                                    <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                    </svg>
+                                    <input type="range" class="volume-slider" id="volume-result" min="0" max="100" value="80">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn btn-primary btn-large" id="download-btn">
+                                <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                <span data-i18n="result.downloadTrack">Download Track</span>
+                            </button>
+                            <button class="btn btn-secondary" id="new-generation-btn">
+                                <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M1 4v6h6"/>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                                </svg>
+                                Create Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MusicNote Chatbot -->
+    <div id="chatbot-trigger" class="chatbot-trigger" title="Chat with Rita 🎵">
+        <svg viewBox="0 0 100 100" class="note-icon">
+            <!-- Eighth note with face -->
+            <ellipse cx="25" cy="85" rx="15" ry="10" fill="currentColor"/>
+            <rect x="38" y="30" width="8" rx="4" height="55" fill="currentColor"/>
+            <path d="M 40 30 Q 70 20 70 45" stroke="currentColor" stroke-width="8" fill="none"/>
+            <!-- Eyes -->
+            <circle cx="20" cy="82" r="2" fill="white"/>
+            <circle cx="30" cy="82" r="2" fill="white"/>
+            <!-- Smile -->
+            <path d="M 18 88 Q 25 91 32 88" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <div id="chatbot-window" class="chatbot-window">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <svg viewBox="0 0 100 100" class="note-icon-small">
+                    <ellipse cx="25" cy="85" rx="15" ry="10" fill="currentColor"/>
+                    <rect x="38" y="30" width="8" rx="4" height="55" fill="currentColor"/>
+                    <path d="M 40 30 Q 70 20 70 45" stroke="currentColor" stroke-width="8" fill="none"/>
+                    <circle cx="20" cy="82" r="2" fill="white"/>
+                    <circle cx="30" cy="82" r="2" fill="white"/>
+                    <path d="M 18 88 Q 25 91 32 88" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                </svg>
+                <div>
+                    <div class="chatbot-title">Rita</div>
+                    <div class="chatbot-subtitle">Your AI Music Assistant</div>
+                </div>
+            </div>
+            <button id="chatbot-close" class="chatbot-close" aria-label="Close chat">×</button>
+        </div>
+        
+        <div id="chatbot-messages" class="chatbot-messages">
+            <div class="chat-message bot-message" id="chatbot-welcome-message">
+                <div class="message-content" data-i18n-html="chatbot.welcome">
+                    Hey there! 🎵 I'm Rita, your AI music assistant. I can help you with:
+                    <br><br>
+                    • Understanding how MusicLab works<br>
+                    • Choosing the best patterns for fusion<br>
+                    • Music theory and production tips<br>
+                    • Technical questions about the model<br>
+                    <br>
+                    What would you like to know?
+                </div>
+            </div>
+        </div>
+        
+        <div class="chatbot-input-area">
+            <input 
+                type="text" 
+                id="chatbot-input" 
+                class="chatbot-input" 
+                placeholder="Ask me anything about music..." 
+                maxlength="500"
+            />
+            <button id="chatbot-send" class="chatbot-send-btn" aria-label="Send message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p class="footer-text">© 2025 MusicLab. Powered by AI.</p>
+                </div>
+                <div class="footer-right">
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Examples Modal -->
+    <div id="examples-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="examples.title">Music Generation Examples</h2>
+                <span class="modal-close-examples">&times;</span>
+            </div>
+            <div class="modal-body">
+                <section class="about-section">
+                    <h3 data-i18n="examples.sampleTitle">Sample Generations</h3>
+                    <p data-i18n="examples.sampleDesc">
+                        Listen to examples of music generated by MusicLab. Each example shows the two input tracks
+                        and the resulting AI-generated fusion.
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <div class="example-container">
+                        <h4 data-i18n="examples.example1">Example 1: Musical Pattern Fusion</h4>
+                        
+                        <!-- Input Tracks -->
+                        <div class="example-inputs">
+                            <div class="example-track">
+                                <div class="example-track-header">
+                                    <span class="example-label" data-i18n="examples.inputA">Input Track A</span>
+                                    <span class="example-duration" id="input-duration">0:00</span>
+                                </div>
+                                <canvas class="example-waveform" id="input-waveform" width="800" height="80"></canvas>
+                                <div class="example-controls">
+                                    <button class="btn-icon" id="input-play-btn" title="Play">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                        </svg>
+                                    </button>
+                                    <span class="time-display">
+                                        <span id="input-current-time">0:00</span>
+                                        <span class="time-separator">/</span>
+                                        <span id="input-total-time">0:00</span>
+                                    </span>
+                                    <div class="volume-control">
+                                        <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                        </svg>
+                                        <input type="range" class="volume-slider" id="input-volume" min="0" max="100" value="70">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="example-track">
+                                <div class="example-track-header">
+                                    <span class="example-label" data-i18n="examples.inputB">Input Track B</span>
+                                    <span class="example-duration" id="target-duration">0:00</span>
+                                </div>
+                                <canvas class="example-waveform" id="target-waveform" width="800" height="80"></canvas>
+                                <div class="example-controls">
+                                    <button class="btn-icon" id="target-play-btn" title="Play">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                        </svg>
+                                    </button>
+                                    <span class="time-display">
+                                        <span id="target-current-time">0:00</span>
+                                        <span class="time-separator">/</span>
+                                        <span id="target-total-time">0:00</span>
+                                    </span>
+                                    <div class="volume-control">
+                                        <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                        </svg>
+                                        <input type="range" class="volume-slider" id="target-volume" min="0" max="100" value="70">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Output Track -->
+                        <div class="example-output">
+                            <div class="example-track">
+                                <div class="example-track-header">
+                                    <span class="example-label output-label" data-i18n="examples.output">Generated Output</span>
+                                    <span class="example-duration" id="output-duration">0:00</span>
+                                </div>
+                                <canvas class="example-waveform" id="output-waveform" width="800" height="80"></canvas>
+                                <div class="example-controls">
+                                    <button class="btn-icon" id="output-play-btn" title="Play">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                        </svg>
+                                    </button>
+                                    <span class="time-display">
+                                        <span id="output-current-time">0:00</span>
+                                        <span class="time-separator">/</span>
+                                        <span id="output-total-time">0:00</span>
+                                    </span>
+                                    <div class="volume-control">
+                                        <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                        </svg>
+                                        <input type="range" class="volume-slider" id="output-volume" min="0" max="100" value="70">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="example-description" data-i18n="examples.exampleDesc">
+                            This example demonstrates how MusicLab fuses two distinct musical patterns into a unique composition.
+                            The AI learns from both input tracks and generates new music that combines their characteristics.
+                        </p>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="document.getElementById('examples-modal').style.display='none'" data-i18n="examples.close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="about.welcome">Welcome to MusicLab</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <section class="about-section">
+                    <h3 data-i18n="about.whatIs">What is MusicLab?</h3>
+                    <p data-i18n="about.whatIsDesc">
+                        MusicLab is an innovative AI-powered music generation platform that creates entirely new music 
+                        by fusing patterns from two input tracks. Think of it as a creative music mixer that learns 
+                        from your favorite songs and generates something unique!
+                    </p>
+                </section>
+
+                <section class="about-section">
+                    <h3 data-i18n="about.howWorks">How Does It Work?</h3>
+                    <div class="step-list">
+                        <div class="step-item">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <strong data-i18n="about.step1Title">Upload Your Tracks</strong>
+                                <p data-i18n="about.step1Desc">Choose two audio files (MP3, WAV, M4A, or FLAC) - Track A and Track B. These can be any genre or style!</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <strong data-i18n="about.step2Title">Select Time Windows</strong>
+                                <p data-i18n="about.step2Desc">Use the sliding controls to choose a 16-second segment from each track. This is where you pick the patterns you want to fuse.</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <strong data-i18n="about.step3Title">AI Magic Happens</strong>
+                                <p data-i18n="about.step3Desc">Our SimpleTransformer model (16.7M parameters) analyzes both segments using EnCodec audio encoding and generates new musical patterns.</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <strong data-i18n="about.step4Title">Download Your Creation</strong>
+                                <p data-i18n="about.step4Desc">Listen to the generated music and download it as a WAV file!</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="about-section">
+                    <h3 data-i18n="about.interface">Understanding the Interface</h3>
+                    
+                    <div class="interface-step">
+                        <h4 data-i18n="about.interfaceStep1">Step 1: Upload Your Music</h4>
+                        <div class="interface-image-container">
+                            <img src="/Images/1.png" alt="Upload interface" class="interface-image">
+                        </div>
+                        <div class="interface-description">
+                            <p><strong data-i18n="about.dragUpload">Drag/Upload Your Music Samples:</strong> <span data-i18n="about.dragUploadDesc">You can either drag and drop audio files directly onto the upload areas or click to browse your computer. Each track area accepts MP3, WAV, OGG, or FLAC files with a minimum duration of 16 seconds.</span></p>
+                            <p><strong data-i18n="about.trackAB">Track A and Track B:</strong> <span data-i18n="about.trackABDesc">Upload two different music tracks that you want to fuse together. The AI will learn patterns from both tracks to create something entirely new.</span></p>
+                            <p><strong data-i18n="about.chatbot">Musical Chatbot:</strong> <span data-i18n="about.chatbotDesc">Notice the floating eighth note icon in the bottom-right corner? That's MusicNote, your AI music assistant! Click it anytime to get help with pattern selection, music theory tips, or questions about how MusicLab works.</span></p>
+                        </div>
+                    </div>
+
+                    <div class="interface-step">
+                        <h4 data-i18n="about.interfaceStep2">Step 2: Select Your Patterns</h4>
+                        <div class="interface-image-container">
+                            <img src="/Images/2.png" alt="Pattern selection interface" class="interface-image">
+                        </div>
+                        <div class="interface-description">
+                            <p><strong data-i18n="about.waveform">Waveform Display:</strong> <span data-i18n="about.waveformDesc">Once uploaded, you'll see a visual waveform representation of your entire track. This helps you identify interesting sections with strong beats, melodies, or textures.</span></p>
+                            <p><strong data-i18n="about.slidingWindow">Sliding Window Control:</strong> <span data-i18n="about.slidingWindowDesc">Use the slider below each waveform to select exactly which 16-second segment you want to use. The blue highlighted area on the waveform shows your current selection. You can see the start and end times (in seconds) displayed below the waveform.</span></p>
+                            <p><strong data-i18n="about.playEntire">Play Entire Pattern:</strong> <span data-i18n="about.playEntireDesc">Click the large play button below the waveform to listen to your complete uploaded track from start to finish. This helps you explore the full song before making your selection.</span></p>
+                            <p><strong data-i18n="about.previewSel">Preview Selection:</strong> <span data-i18n="about.previewSelDesc">Use the "Preview Selection" button to listen to <em>only the 16-second segment</em> you've chosen with the slider. This is the exact portion that will be sent to the AI for music generation.</span></p>
+                            <p><strong data-i18n="about.clearTrackTitle">Clear Track:</strong> <span data-i18n="about.clearTrackDesc">If you want to start over, click "Clear Track" to remove the uploaded file and begin again.</span></p>
+                            <p><strong data-i18n="about.durationInd">Duration Indicator:</strong> <span data-i18n="about.durationIndDesc">The blue "16.0 sec" indicator confirms that you've selected a valid 16-second pattern. Both tracks must have a selection before you can generate music.</span></p>
+                        </div>
+                    </div>
+
+                    <div class="interface-step">
+                        <h4 data-i18n="about.interfaceStep3">Step 3: Generate and Download</h4>
+                        <div class="interface-image-container">
+                            <img src="/Images/3.png" alt="Results interface" class="interface-image">
+                        </div>
+                        <div class="interface-description">
+                            <p><strong data-i18n="about.playGen">Play Generated Music:</strong> <span data-i18n="about.playGenDesc">Once generation is complete, you'll see a new waveform showing your AI-created music. Click the play button to listen to the result. The player shows the current playback time and allows you to adjust volume.</span></p>
+                            <p><strong data-i18n="about.downloadTitle">Download Track:</strong> <span data-i18n="about.downloadDesc">Love what you created? Click the "Download Track" button to save your generated music as a high-quality WAV file to your computer. You can use this in your own projects!</span></p>
+                            <p><strong data-i18n="about.createAnother">Create Another:</strong> <span data-i18n="about.createAnotherDesc">Want to try different patterns or tracks? Click "Create Another" to return to the beginning and start a new fusion experiment.</span></p>
+                            <p><strong data-i18n="about.assistantTitle">MusicNote Assistant:</strong> <span data-i18n="about.assistantDesc">The chatbot is always available to help! You can ask questions like "What patterns work well together?" or "How can I improve my results?" MusicNote has deep knowledge of music theory and can guide you toward better creative combinations.</span></p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="about-section">
+                    <h3 data-i18n="about.why16">Why 16 Seconds?</h3>
+                    <p data-i18n="about.why16Desc">
+                        We use 16-second segments for several technical and creative reasons:
+                    </p>
+                    <ul>
+                        <li><strong data-i18n="about.why16Pattern">Pattern Recognition:</strong> <span data-i18n="about.why16PatternDesc">16 seconds is long enough for the AI to recognize meaningful musical patterns like rhythm, melody, and harmony.</span></li>
+                        <li><strong data-i18n="about.why16Efficiency">Model Efficiency:</strong> <span data-i18n="about.why16EfficiencyDesc">Our EnCodec encoder works optimally with this duration, balancing quality and processing speed.</span></li>
+                        <li><strong data-i18n="about.why16Memory">Memory Constraints:</strong> <span data-i18n="about.why16MemoryDesc">Shorter segments allow for efficient processing on standard hardware without requiring expensive GPU resources.</span></li>
+                        <li><strong data-i18n="about.why16Structure">Musical Structure:</strong> <span data-i18n="about.why16StructureDesc">16 seconds typically captures 1-2 musical phrases or bars (depending on tempo), which is enough context for creative fusion.</span></li>
+                        <li><strong data-i18n="about.why16Focus">Focus:</strong> <span data-i18n="about.why16FocusDesc">It forces you to choose the most interesting part of each track, leading to more creative results!</span></li>
+                    </ul>
+                </section>
+
+                <section class="about-section">
+                    <h3 data-i18n="about.tips">Tips for Best Results</h3>
+                    <div class="tips-grid">
+                        <div class="tip-card">
+                            <strong data-i18n="about.tipRhythm">Complementary Rhythms</strong>
+                            <p data-i18n="about.tipRhythmDesc">Choose one track with a strong beat and another with a compelling melody. This creates interesting interplay between rhythm and melodic elements.</p>
+                        </div>
+                        <div class="tip-card">
+                            <strong data-i18n="about.tipHarmony">Harmonic Compatibility</strong>
+                            <p data-i18n="about.tipHarmonyDesc">Tracks in the same or related keys (e.g., C major and A minor) work best together. This ensures harmonies blend smoothly without clashing.</p>
+                        </div>
+                        <div class="tip-card">
+                            <strong data-i18n="about.tipEnergy">Energy Balance</strong>
+                            <p data-i18n="about.tipEnergyDesc">Mix high-energy sections with calmer ones for interesting dynamic contrast. This adds emotional depth and keeps listeners engaged.</p>
+                        </div>
+                        <div class="tip-card">
+                            <strong data-i18n="about.tipTimbral">Timbral Variety</strong>
+                            <p data-i18n="about.tipTimbralDesc">Different instruments (e.g., guitar + piano) create richer fusions. Combining diverse timbres adds texture and complexity to the output.</p>
+                        </div>
+                        <div class="tip-card">
+                            <strong data-i18n="about.tipSilence">Avoid Silence</strong>
+                            <p data-i18n="about.tipSilenceDesc">Choose segments with actual musical content, not silent or very quiet parts. The AI needs sufficient information to generate compelling patterns.</p>
+                        </div>
+                        <div class="tip-card">
+                            <strong data-i18n="about.tipExperiment">Experiment!</strong>
+                            <p data-i18n="about.tipExperimentDesc">Try unexpected combinations - sometimes the most creative results come from unlikely pairings. Don't be afraid to mix different genres!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="about-section">
+                    <h3 data-i18n="about.technical">Technical Details</h3>
+                    <ul>
+                        <li><strong>Model:</strong> SimpleTransformer with 16.7 million parameters</li>
+                        <li><strong>Audio Codec:</strong> EnCodec (24kHz sample rate, 128 encoding dimensions)</li>
+                        <li><strong>Input:</strong> Any audio format (automatically converted to 24kHz mono)</li>
+                        <li><strong>Output:</strong> 16-bit PCM WAV file</li>
+                        <li><strong>Processing:</strong> CPU-based inference (no GPU required)</li>
+                        <li><strong>Privacy:</strong> All processing happens on our server - your files are not stored permanently</li>
+                    </ul>
+                </section>
+
+                <section class="about-section">
+                    <h3 data-i18n="about.needHelp">Need Help?</h3>
+                    <p data-i18n="about.needHelpDesc">
+                        Click the floating eighth note icon in the bottom-right corner to chat with 
+                        <strong>MusicNote</strong>, our AI music assistant! MusicNote can help you with:
+                    </p>
+                    <ul>
+                        <li data-i18n="about.helpUnderstand">Understanding how MusicLab's AI model works</li>
+                        <li data-i18n="about.helpChoose">Choosing the best pattern combinations for creative results</li>
+                        <li data-i18n="about.helpTheory">Music theory concepts and production techniques</li>
+                        <li data-i18n="about.helpTechnical">Technical questions about audio formats and processing</li>
+                        <li data-i18n="about.helpInspiration">Creative inspiration and suggestions for your next fusion</li>
+                        <li data-i18n="about.helpTrouble">Troubleshooting any issues you encounter</li>
+                    </ul>
+                    <p data-i18n="about.helpConversation">
+                        MusicNote maintains conversation history throughout your session, so you can have 
+                        a natural dialogue about your music creation process. The chatbot is knowledgeable, 
+                        friendly, and always ready to assist you in making the most creative music possible!
+                    </p>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="document.getElementById('about-modal').style.display='none'" data-i18n="about.close">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
