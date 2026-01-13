@@ -473,10 +473,10 @@ scp -i ~/.ssh/your-key.pem ubuntu@YOUR_ELASTIC_IP:~/PowerMuse/uploads_backup*.ta
 
 - **GitHub**: https://github.com/Vlasenko2006/PowerMuse
 - **Issues**: Report bugs via GitHub Issues
-- **Email**: [Your support email]
+- **Email**: [andrey.vlasenko2006@gmail.com]
 
 ---
 
 **Deployed Successfully! 🎉**
 
-Your MusicLab is now live at: `http://YOUR_ELASTIC_IP`
+Your MusicLab is now live at: `http://coming soon ))`
