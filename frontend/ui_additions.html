@@ -1,0 +1,53 @@
+<!-- Add this HTML after the player controls, before the generate button -->
+
+<div class="optimize-patterns-section" style="margin: 20px 0; text-align: center;">
+    <button id="find-optimal-btn" class="btn-secondary" style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: transform 0.2s;
+        display: none;
+    ">
+        ✨ Find Fitting Music Patterns with AI
+    </button>
+    
+    <p class="optimize-hint" style="
+        margin-top: 8px;
+        color: #666;
+        font-size: 14px;
+        font-style: italic;
+    ">
+        Optional: Let AI search for the best fitting 16-second patterns in your tracks
+    </p>
+    
+    <div id="optimize-progress" style="
+        display: none;
+        margin-top: 15px;
+        padding: 15px;
+        background: #f5f5f5;
+        border-radius: 8px;
+    ">
+        <div class="progress-bar" style="
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        ">
+            <div id="optimize-progress-fill" style="
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: width 0.3s;
+            "></div>
+        </div>
+        <p id="optimize-status" style="color: #555; font-size: 14px;">
+            Analyzing patterns...
+        </p>
+    </div>
+</div>

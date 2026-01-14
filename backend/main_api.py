@@ -20,13 +20,18 @@ from fastapi.responses import FileResponse, JSONResponse
 from typing import Optional, Dict
 import os
 import uuid
+import hashlib
 import logging
 import shutil
-from datetime import datetime
+from datetime import datetime, timedelta
+import asyncio
+import time
 import torch
 import soundfile as sf
 import numpy as np
 import subprocess
+from pydub import AudioSegment
+import librosa
 import sys
 import os
 
@@ -41,6 +46,9 @@ print("DEBUG: Importing encodec...")
 import encodec
 print("DEBUG: Importing music chatbot...")
 from music_chatbot import get_chatbot_instance
+from score_cache import get_cache
+from pattern_optimizer import find_optimal_patterns as find_patterns
+from audio_discriminator import AudioDiscriminator
 print("DEBUG: Imports successful")
 
 # Configure logging
@@ -72,13 +80,62 @@ jobs_db: Dict[str, dict] = {}
 # Model globals (loaded once at startup)
 MODEL = None
 ENCODEC_MODEL = None
+DISCRIMINATOR = None
 DEVICE = None
 MODEL_ARGS = None
 
 
+def cleanup_old_cache_files(max_age_hours: int = 24):
+    """Remove cache files older than specified hours"""
+    cache_dir = 'cache'
+    if not os.path.exists(cache_dir):
+        return 0
+    
+    current_time = time.time()
+    max_age_seconds = max_age_hours * 3600
+    removed_count = 0
+    
+    try:
+        for item in os.listdir(cache_dir):
+            if not item.startswith('music_'):
+                continue
+                
+            item_path = os.path.join(cache_dir, item)
+            if not os.path.isdir(item_path):
+                continue
+            
+            # Check directory age
+            dir_age = current_time - os.path.getmtime(item_path)
+            if dir_age > max_age_seconds:
+                logger.info(f"Removing old cache directory: {item} (age: {dir_age/3600:.1f} hours)")
+                shutil.rmtree(item_path)
+                removed_count += 1
+                
+                # Also remove from jobs_db if present
+                job_id = item.replace('music_', '')
+                if job_id in jobs_db:
+                    del jobs_db[job_id]
+    except Exception as e:
+        logger.error(f"Error during cache cleanup: {e}")
+    
+    return removed_count
+
+
+async def periodic_cache_cleanup():
+    """Background task to clean up old cache files every hour"""
+    while True:
+        try:
+            await asyncio.sleep(3600)  # Run every hour
+            removed = cleanup_old_cache_files(max_age_hours=24)
+            if removed > 0:
+                logger.info(f"Periodic cleanup: removed {removed} old cache directories")
+        except Exception as e:
+            logger.error(f"Error in periodic cleanup task: {e}")
+
+
 def load_models():
     """Load model and EnCodec at startup"""
-    global MODEL, ENCODEC_MODEL, DEVICE, MODEL_ARGS
+    global MODEL, ENCODEC_MODEL, DISCRIMINATOR, DEVICE, MODEL_ARGS
     
     checkpoint_path = 'checkpoints/best_model.pt'
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -114,6 +171,19 @@ def load_models():
     logger.info(f"  Model loaded: {sum(p.numel() for p in MODEL.parameters()):,} parameters")
     logger.info(f"  Cascade stages: {MODEL_ARGS.get('num_transformer_layers', 1)}")
     
+    # Load discriminator (music critic) for quality evaluation
+    logger.info("Loading discriminator (music critic)...")
+    print("DEBUG: Creating AudioDiscriminator...")
+    DISCRIMINATOR = AudioDiscriminator(encoding_dim=128).to(DEVICE)
+    if 'discriminator_state_dict' in checkpoint:
+        print("DEBUG: Loading discriminator state from checkpoint...")
+        DISCRIMINATOR.load_state_dict(checkpoint['discriminator_state_dict'])
+        logger.info("  ✓ Discriminator loaded from checkpoint")
+    else:
+        logger.warning("  ⚠ No discriminator in checkpoint, using untrained critic")
+    DISCRIMINATOR.eval()
+    print("DEBUG: Discriminator set to eval mode")
+    
     # Load EnCodec
     logger.info("Loading EnCodec model...")
     print("DEBUG: Creating EnCodec model (24kHz)...")
@@ -136,6 +206,8 @@ def load_models():
 async def startup_event():
     """Load models when server starts"""
     load_models()
+    # Start background cleanup task (removes files older than 24 hours)
+    asyncio.create_task(periodic_cache_cleanup())
 
 
 def convert_to_wav(input_path: str, output_path: str, sample_rate: int = 24000) -> str:
@@ -412,6 +484,149 @@ async def health_check():
     }
 
 
+
+@app.post("/api/evaluate-segments")
+async def evaluate_segments_endpoint(
+    track1: UploadFile = File(...),
+    track2: UploadFile = File(...),
+    start1: float = Form(...),
+    start2: float = Form(...)
+):
+    """Evaluate quality score for specific segment positions"""
+    try:
+        # Generate hashes for caching
+        track1_bytes = await track1.read()
+        track2_bytes = await track2.read()
+        track1_hash = hashlib.md5(track1_bytes).hexdigest()[:8]
+        track2_hash = hashlib.md5(track2_bytes).hexdigest()[:8]
+        
+        # Check cache first
+        cache = get_cache()
+        cached = cache.get(track1_hash, track2_hash, start1, start2)
+        if cached:
+            logger.info(f"📊 Cache hit: start1={start1:.1f}s, start2={start2:.1f}s, score={cached['score']:.3f}")
+            return {
+                "status": "success",
+                "score": float(cached['score']),
+                "cached": True
+            }
+        
+        # Save uploaded files with original extensions
+        import tempfile
+        import os
+        
+        # Create temp files
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as f1:
+            track1_path = f1.name
+            f1.write(track1_bytes)
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as f2:
+            track2_path = f2.name
+            f2.write(track2_bytes)
+        
+        # Convert to WAV 24kHz
+        track1_wav = track1_path + '.wav'
+        track2_wav = track2_path + '.wav'
+        convert_to_wav(track1_path, track1_wav, sample_rate=24000)
+        convert_to_wav(track2_path, track2_wav, sample_rate=24000)
+        
+        # Load audio segments using soundfile
+        audio1, sr1 = sf.read(track1_wav)
+        audio2, sr2 = sf.read(track2_wav)
+        
+        # Convert stereo to mono if needed
+        if audio1.ndim == 2:
+            audio1 = audio1.mean(axis=1)
+        if audio2.ndim == 2:
+            audio2 = audio2.mean(axis=1)
+        
+        # Extract 16s segments
+        start1_frame = int(start1 * sr1)
+        start2_frame = int(start2 * sr2)
+        duration_frames = int(16.0 * sr1)
+        
+        y1 = audio1[start1_frame:start1_frame + duration_frames]
+        y2 = audio2[start2_frame:start2_frame + duration_frames]
+        
+        # Pad if needed
+        if len(y1) < duration_frames:
+            y1 = np.pad(y1, (0, duration_frames - len(y1)))
+        if len(y2) < duration_frames:
+            y2 = np.pad(y2, (0, duration_frames - len(y2)))
+        
+        # Generate music from these segments (same as optimizer does)
+        with torch.no_grad():
+            t1 = torch.from_numpy(y1).float().unsqueeze(0).unsqueeze(0).to(DEVICE)
+            t2 = torch.from_numpy(y2).float().unsqueeze(0).unsqueeze(0).to(DEVICE)
+            
+            # Encode
+            enc1 = ENCODEC_MODEL.encoder(t1)
+            enc2 = ENCODEC_MODEL.encoder(t2)
+            
+            # Generate (check cascade mode vs single stage)
+            num_stages = MODEL_ARGS.get('num_transformer_layers', 1)
+            if num_stages > 1:
+                output = MODEL(enc1, enc2)  # Cascade: two inputs
+            else:
+                output = MODEL(enc1)  # Single stage: one input only
+            if isinstance(output, tuple):
+                output = output[0]
+            
+            # Decode to audio
+            result = ENCODEC_MODEL.decoder(output)
+            result_audio = result.squeeze().cpu().numpy()
+        
+        # Score using DISCRIMINATOR (music critic)
+        with torch.no_grad():
+            disc_logit = DISCRIMINATOR(output).squeeze().item()
+            disc_prob = torch.sigmoid(torch.tensor(disc_logit)).item()
+        
+        # Old acoustic score (for comparison)
+        rms = np.sqrt(np.mean(result_audio ** 2))
+        std = np.std(result_audio)
+        acoustic_score = rms * 10 + std * 5
+        
+        # Use discriminator probability as the quality score
+        score = disc_prob
+        
+        # Cache the score
+        cache.set(track1_hash, track2_hash, start1, start2, score)
+        
+        # Debug console output (table format)
+        print(f"\n{'='*80}")
+        print(f"🎵 MUSIC QUALITY EVALUATION")
+        print(f"{'-'*80}")
+        print(f"Track 1 segment: {start1:.1f}s - {start1+16.0:.1f}s")
+        print(f"Track 2 segment: {start2:.1f}s - {start2+16.0:.1f}s")
+        print(f"\n{'Metric':<30} {'Value':<20} {'Info'}")
+        print(f"{'-'*80}")
+        print(f"{'Discriminator Logit':<30} {disc_logit:<20.4f} {'Raw output'}")
+        print(f"{'Discriminator Probability':<30} {disc_prob:<20.4f} {'Is this music?'}")
+        print(f"{'Quality Score (0-1)':<30} {score:<20.4f} {'Used for ranking'}")
+        print(f"{'Quality Percentage':<30} {score*100:<20.1f}% {'Display value'}")
+        print(f"\n{'[Acoustic Metrics - Legacy]':<50}")
+        print(f"{'RMS Energy':<30} {rms:<20.4f}")
+        print(f"{'Std Deviation':<30} {std:<20.4f}")
+        print(f"{'Acoustic Score':<30} {acoustic_score:<20.3f} {'Old formula'}")
+        print(f"{'='*80}\n")
+        
+        logger.info(f"📊 Critic score: {score:.4f} ({score*100:.1f}%), logit={disc_logit:.3f}, acoustic={acoustic_score:.3f}")
+        
+        # Cleanup
+        for path in [track1_path, track2_path, track1_wav, track2_wav]:
+            try:
+                os.remove(path)
+            except:
+                pass
+        
+        return {
+            "status": "success",
+            "score": float(score),
+            "cached": False
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.post("/api/generate")
 async def generate_music_endpoint(
     track1: UploadFile = File(...),
@@ -436,6 +651,9 @@ async def generate_music_endpoint(
     Returns:
         job_id: Unique job identifier for status polling
     """
+    # Don't clear cache here - let evaluation cache persist between calls
+    # This ensures consistent scoring when using the same positions multiple times
+    
     job_id = str(uuid.uuid4())
     logger.info(f"📨 New generation request - Job ID: {job_id}")
     logger.info(f"   Track 1: {track1.filename} ({start_time_1}s - {end_time_1}s)")
@@ -551,6 +769,32 @@ async def cleanup_job(job_id: str):
 # Chatbot Endpoints
 # ========================================
 
+@app.post("/api/clear-cache")
+async def clear_score_cache():
+    """
+    Clear the score cache database
+    
+    Called when tracks are cleared to prevent cached scores from 
+    previous tracks interfering with new optimization runs.
+    
+    Returns:
+        Success message with number of entries cleared
+    """
+    try:
+        cache = get_cache()
+        num_entries = len(cache.cache)
+        cache.clear()
+        logger.info(f"[CACHE] Cleared {num_entries} cache entries")
+        return {
+            "status": "success",
+            "message": f"Cleared {num_entries} cached scores",
+            "cleared": num_entries
+        }
+    except Exception as e:
+        logger.error(f"Cache clear error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/chat")
 async def chat_with_rita(
     session_id: str = Form(...),
@@ -571,21 +815,10 @@ async def chat_with_rita(
     try:
         logger.info(f"[Rita] Session: {session_id}, Language: {language}, Message: {message[:50]}...")
         chatbot = get_chatbot_instance()
-        # Prepend strong language instruction to message
-        language_map = {
-            'en': 'IMPORTANT: You must respond in English only.',
-            'ru': 'ВАЖНО: Ты должна отвечать ТОЛЬКО на русском языке и называть себя Рита.',
-            'de': 'WICHTIG: Sie müssen NUR auf Deutsch antworten.',
-            'fr': 'IMPORTANT: Vous devez répondre UNIQUEMENT en français.',
-            'es': 'IMPORTANTE: Debes responder SOLO en español.',
-            'pt': 'IMPORTANTE: Você deve responder APENAS em português.',
-            'ar': 'مهم: يجب أن ترد باللغة العربية فقط.',
-            'zh': '重要：您必须仅用中文回复。'
-        }
-        lang_instruction = f"[{language_map.get(language, language_map['en'])}]\n\n"
-        enhanced_message = lang_instruction + message
-        logger.info(f"[Rita] Enhanced message with lang instruction: {enhanced_message[:100]}...")
-        response = chatbot.chat(session_id, enhanced_message)
+        
+        # Don't inject language instructions - let Rita's system prompt handle language detection
+        # Rita will respond in the same language the user writes in
+        response = chatbot.chat(session_id, message)
         return response
     except Exception as e:
         logger.error(f"Chatbot error: {e}")
@@ -670,3 +903,101 @@ if __name__ == "__main__":
     
     # Run server
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+
+# ========================================
+# Pattern Optimization Endpoint
+# ========================================
+
+@app.post("/api/find-optimal-patterns")
+async def find_optimal_patterns_endpoint(
+    track1: UploadFile = File(...),
+    track2: UploadFile = File(...),
+    method: str = Form('hybrid'),     # 'hybrid', 'grid', or 'bayesian'
+    n_grid: int = Form(10),           # 10x10=100 grid evaluations
+    n_bayesian: int = Form(40)        # 40 additional Bayesian evaluations
+):
+    """
+    Find optimal 16-second patterns using hybrid (grid + Bayesian), grid only, or Bayesian only
+    Hybrid: 10x10 grid (100 evals) + 40 Bayesian refinements = 140 total evaluations (~23 min)
+    """
+    job_id = str(uuid.uuid4())
+    logger.info(f"🔍 Pattern optimization ({method}, grid={n_grid}, bayesian={n_bayesian}) - Job ID: {job_id}")
+    
+    cache_dir = f"cache/optimize_{job_id}"
+    os.makedirs(cache_dir, exist_ok=True)
+    
+    track1_path = os.path.join(cache_dir, f"track1{os.path.splitext(track1.filename)[1]}")
+    track2_path = os.path.join(cache_dir, f"track2{os.path.splitext(track2.filename)[1]}")
+    
+    # Read track bytes for hashing
+    track1.file.seek(0)
+    track1_bytes = await track1.read()
+    track2.file.seek(0)
+    track2_bytes = await track2.read()
+    
+    track1_hash = hashlib.md5(track1_bytes).hexdigest()[:8]
+    track2_hash = hashlib.md5(track2_bytes).hexdigest()[:8]
+    
+    with open(track1_path, 'wb') as f:
+        f.write(track1_bytes)
+    with open(track2_path, 'wb') as f:
+        f.write(track2_bytes)
+    
+    wav1 = os.path.join(cache_dir, "track1.wav")
+    wav2 = os.path.join(cache_dir, "track2.wav")
+    convert_to_wav(track1_path, wav1, sample_rate=24000)
+    convert_to_wav(track2_path, wav2, sample_rate=24000)
+    
+    try:
+        if method == 'hybrid':
+            total_evals = n_grid * n_grid + n_bayesian
+        elif method == 'grid':
+            total_evals = n_grid * n_grid
+        else:
+            total_evals = n_bayesian
+        logger.info(f"Running {method} optimization ({total_evals} evaluations)...")
+        logger.info(f"Using score cache (track1_hash={track1_hash}, track2_hash={track2_hash})")
+        num_stages = MODEL_ARGS.get('num_transformer_layers', 1)
+        cache = get_cache()
+        start1, start2, score, evaluation_history = find_patterns(
+            wav1, wav2, MODEL, ENCODEC_MODEL, DEVICE, 
+            discriminator=DISCRIMINATOR, 
+            num_stages=num_stages,
+            method=method,
+            n_grid=n_grid,
+            n_bayesian=n_bayesian,
+            score_cache=cache,
+            track1_hash=track1_hash,
+            track2_hash=track2_hash
+        )
+        
+        shutil.rmtree(cache_dir)
+        
+        logger.info(f"✅ Optimal: track1={start1:.1f}s, track2={start2:.1f}s, score={score:.3f}")
+        
+        # Convert evaluation history for JSON response
+        all_results = [
+            {
+                "iteration": eval_data["iteration"],
+                "start1": eval_data["start1"],
+                "start2": eval_data["start2"],
+                "score": eval_data["score"]
+            }
+            for eval_data in evaluation_history
+        ]
+        
+        return {
+            "status": "success",
+            "start_time_1": start1,
+            "end_time_1": start1 + 16.0,
+            "start_time_2": start2,
+            "end_time_2": start2 + 16.0,
+            "score": score,
+            "all_results": all_results
+        }
+    except Exception as e:
+        logger.error(f"Optimization error: {e}")
+        if os.path.exists(cache_dir):
+            shutil.rmtree(cache_dir)
+        raise HTTPException(status_code=500, detail=str(e))

@@ -107,6 +107,24 @@
     "why16StructureDesc": "16 seconds typically captures 1-2 musical phrases or bars (depending on tempo), which is enough context for creative fusion.",
     "why16Focus": "Focus:",
     "why16FocusDesc": "It forces you to choose the most interesting part of each track, leading to more creative results!",
+    "qualityControl": "Quality Control",
+    "qualityControlDesc": "MusicLab aims to fuse both tracks equally, approximately 50%/50% (±10%). Our AI critic, a convolutional Neural Network trained alongside the creative model, calculates a quality score that represents how well the chosen patterns fit together for fusion. Think of it as getting an opinion from a knowledgeable friend – you can trust it or make your own decision!",
+    "aiOptimization": "AI Pattern Optimization",
+    "aiOptimizationDesc": "The \"Find Fitting Music Patterns with AI\" button uses artificial intelligence to discover the best pattern combinations for fusion. When you press this button, the AI critic evaluates patterns using both grid search and Bayesian optimization methods to find the most suitable segments. This process typically takes a few seconds on GPU hardware, but may take several minutes on CPU. Since MusicLab is deployed on AWS's t3.micro instance with modest resources, you'll need to be patient. But it's worth the wait!",
+    "howItWorks": "How It Works",
+    "howItWorksDesc": "The optimization process uses a hybrid approach:",
+    "howGrid": "Grid Search:",
+    "howGridDesc": "The system samples 10 equally-spaced positions from each track and creates all possible pairs (10 × 10 = 100 pairs total). Each pair contains one segment from Track 1 and one from Track 2.",
+    "howQuality": "Quality Evaluation:",
+    "howQualityDesc": "The AI critic calculates quality scores for all 100 pairs.",
+    "howBayesian": "Bayesian Refinement:",
+    "howBayesianDesc": "Using these initial scores, Bayesian probability analysis identifies 40 additional promising pairs that might yield even higher quality scores.",
+    "howBest": "Best Result Selection:",
+    "howBestDesc": "After evaluating all 140 combinations, the system automatically moves the sliders to the positions corresponding to the highest-scoring pair.",
+    "downloadResults": "Downloading Results",
+    "downloadResultsDesc": "After computation completes, you can download the complete accuracy score table by clicking the \"Download the Accuracy Score\" button. The CSV file contains columns: Iteration, Track 1 Start (s), Track 2 Start (s), Quality Score (%), with rows sorted by quality score in descending order.",
+    "nextSteps": "Next Steps",
+    "nextStepsDesc": "Once the optimal positions are found, press \"Generate Pattern\" to create the fused audio using these best-matching segments.",
     "tips": "Tips for Best Results",
     "tipRhythm": "Complementary Rhythms",
     "tipRhythmDesc": "Choose one track with a strong beat and another with a compelling melody. This creates interesting interplay between rhythm and melodic elements.",
@@ -131,6 +149,14 @@
     "helpTrouble": "Troubleshooting any issues you encounter",
     "helpConversation": "MusicNote maintains conversation history throughout your session, so you can have a natural dialogue about your music creation process. The chatbot is knowledgeable, friendly, and always ready to assist you in making the most creative music possible!"
   },
+  "optimizer": {
+    "fastSearch": "Fast Search",
+    "deepSearch": "Deep Search",
+    "findButton": "Find Fitting Music Patterns with AI",
+    "fastSearchDesc": "⚡ Fast Search: ~1 minute, 30 evaluations (5×5 grid + 5 Bayesian). Good for quick results, but may miss optimal patterns.",
+    "deepSearchDesc": "🔍 Deep Search: ~10 minutes, 140 evaluations (10×10 grid + 40 Bayesian). More thorough analysis, most likely finds optimal patterns.",
+    "downloadNote": "After analysis, you can download all evaluated pairs with quality scores as a CSV table."
+  },
   "chatbot": {
     "welcome": "Hey there! 🎵 I'm Rita, your AI music assistant. I can help you with:<br><br>• Understanding how MusicLab works<br>• Choosing the best patterns for fusion<br>• Music theory and production tips<br>• Technical questions about the model<br><br>What would you like to know?"
   },
@@ -144,5 +170,16 @@
     "inputB": "Input Track B: Emir Kusturica - Djinji Dinji",
     "output": "Generated Output",
     "exampleDesc": "This example demonstrates how MusicLab fuses two distinct musical patterns into a unique composition. The AI learns from both input tracks and generates new music that combines their characteristics."
+  },
+  "optimizer": {
+    "fastSearch": "Fast Search",
+    "deepSearch": "Deep Search",
+    "findButton": "Find Fitting Music Patterns with AI",
+    "annotation": "Let AI find your patterns. Fast search - 1 minute. Good for quick results, but may miss optimal patterns. Deep Search - 10 minutes, find optimal patterns.",
+    "downloadButton": "Download the Accuracy Score",
+    "readyToGenerate": "Press \"Generate Music\" now. Sliders are set to optimal positions.",
+    "fastSearchDesc": "Fast Search: ~1 minute, 30 evaluations (5×5 grid + 5 Bayesian). Good for quick results, but may miss optimal patterns.",
+    "deepSearchDesc": "Deep Search: ~10 minutes, 140 evaluations (10×10 grid + 40 Bayesian). More thorough, higher chance of finding optimal patterns.",
+    "downloadNote": "After analysis, you can download all evaluated pairs with quality scores as a CSV table."
   }
 }

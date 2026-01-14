@@ -107,6 +107,24 @@
     "why16StructureDesc": "16 segundos típicamente capturan 1-2 frases musicales o compases (dependiendo del tempo), lo cual es suficiente contexto para la fusión creativa.",
     "why16Focus": "Enfoque:",
     "why16FocusDesc": "¡Te obliga a elegir la parte más interesante de cada pista, lo que conduce a resultados más creativos!",
+    "qualityControl": "Control de Calidad",
+    "qualityControlDesc": "MusicLab busca fusionar ambas pistas por igual, aproximadamente 50%/50% (±10%). Nuestro crítico de IA, una red neuronal convolucional entrenada junto con el modelo creativo, calcula una puntuación de calidad que representa qué tan bien encajan los patrones elegidos para la fusión. ¡Piensa en ello como la opinión de un amigo conocedor: puedes confiar en ella o tomar tu propia decisión!",
+    "aiOptimization": "Optimización de Patrones con IA",
+    "aiOptimizationDesc": "El botón \"Encontrar Patrones Musicales Adecuados con IA\" utiliza inteligencia artificial para descubrir las mejores combinaciones de patrones para la fusión. Cuando presionas este botón, el crítico de IA evalúa patrones usando métodos de búsqueda en cuadrícula y optimización bayesiana para encontrar los segmentos más adecuados. Este proceso generalmente toma unos segundos en hardware GPU, pero puede tomar varios minutos en CPU. Como MusicLab está desplegado en una instancia AWS t3.micro con recursos modestos, necesitarás ser paciente. ¡Pero vale la pena!",
+    "howItWorks": "Cómo Funciona",
+    "howItWorksDesc": "El proceso de optimización utiliza un enfoque híbrido:",
+    "howGrid": "Búsqueda en Cuadrícula:",
+    "howGridDesc": "El sistema muestrea 10 posiciones igualmente espaciadas de cada pista y crea todos los pares posibles (10 × 10 = 100 pares en total). Cada par contiene un segmento de la Pista 1 y uno de la Pista 2.",
+    "howQuality": "Evaluación de Calidad:",
+    "howQualityDesc": "El crítico de IA calcula puntuaciones de calidad para todos los 100 pares.",
+    "howBayesian": "Refinamiento Bayesiano:",
+    "howBayesianDesc": "Usando estas puntuaciones iniciales, el análisis de probabilidad bayesiano identifica 40 pares prometedores adicionales que podrían producir puntuaciones de calidad aún más altas.",
+    "howBest": "Selección del Mejor Resultado:",
+    "howBestDesc": "Después de evaluar todas las 140 combinaciones, el sistema mueve automáticamente los controles deslizantes a las posiciones correspondientes al par con la puntuación más alta.",
+    "downloadResults": "Descarga de Resultados",
+    "downloadResultsDesc": "Una vez completado el cálculo, puedes descargar la tabla completa de puntuaciones de precisión haciendo clic en el botón \"Descargar Puntuación de Precisión\". El archivo CSV contiene columnas: Iteración, Inicio Pista 1 (s), Inicio Pista 2 (s), Puntuación de Calidad (%), con filas ordenadas por puntuación de calidad en orden descendente.",
+    "nextSteps": "Próximos Pasos",
+    "nextStepsDesc": "Una vez encontradas las posiciones óptimas, presiona \"Generar Patrón\" para crear el audio fusionado usando estos segmentos mejor emparejados.",
     "tips": "Consejos para Mejores Resultados",
     "tipRhythm": "Ritmos Complementarios",
     "tipRhythmDesc": "Elige una pista con un ritmo fuerte y otra con una melodía convincente. Esto crea una interacción interesante entre el ritmo y los elementos melódicos.",
@@ -130,7 +148,15 @@
     "helpInspiration": "Inspiración creativa y sugerencias para tu próxima fusión",
     "helpTrouble": "Solución de problemas que encuentres",
     "helpConversation": "MusicNote mantiene el historial de conversación durante tu sesión, para que puedas tener un diálogo natural sobre tu proceso de creación musical. ¡El chatbot es conocedor, amigable y siempre está listo para ayudarte a crear la música más creativa posible!"
-  },  "chatbot": {
+  },  "optimizer": {
+    "fastSearch": "Búsqueda rápida",
+    "deepSearch": "Búsqueda profunda",
+    "findButton": "Encontrar patrones musicales adecuados con IA",
+    "fastSearchDesc": "⚡ Búsqueda rápida: ~1 minuto, 30 evaluaciones (cuadrícula 5×5 + 5 bayesianas). Bueno para resultados rápidos, pero puede perder patrones óptimos.",
+    "deepSearchDesc": "🔍 Búsqueda profunda: ~10 minutos, 140 evaluaciones (cuadrícula 10×10 + 40 bayesianas). Análisis más exhaustivo, probablemente encuentra patrones óptimos.",
+    "downloadNote": "Después del análisis, puede descargar todos los pares evaluados con puntuaciones de calidad en una tabla CSV."
+  },
+  "chatbot": {
     "welcome": "¡Hola! 🎵 Soy Rita, tu asistente musical de IA. Puedo ayudarte con:<br><br>• Entender cómo funciona MusicLab<br>• Elegir los mejores patrones para fusión<br>• Teoría musical y consejos de producción<br>• Preguntas técnicas sobre el modelo<br><br>¿Qué te gustaría saber?"
   },  "examples": {
     "title": "Ejemplos de Generación Musical",
@@ -141,6 +167,15 @@
     "inputA": "Pista de entrada A: Vivaldi - Agosto (Tormenta)",
     "inputB": "Pista de entrada B: Emir Kusturica - Djinji Dinji",
     "output": "Salida Generada",
-    "exampleDesc": "Este ejemplo demuestra cómo MusicLab fusiona dos patrones musicales distintos en una composición única. La IA aprende de ambas pistas de entrada y genera nueva música que combina sus características."
-  }
+    "exampleDesc": "Este ejemplo demuestra cómo MusicLab fusiona dos patrones musicales distintos en una composición única. La IA aprende de ambas pistas de entrada y genera nueva música que combina sus características."  },
+  "optimizer": {
+    "fastSearch": "Búsqueda rápida",
+    "deepSearch": "Búsqueda profunda",
+    "findButton": "Encontrar patrones musicales adecuados con IA",
+    "annotation": "Deje que la IA encuentre sus patrones. Búsqueda rápida - 1 minuto. Bueno para resultados rápidos, pero puede perder patrones óptimos. Búsqueda profunda - 10 minutos, encuentra patrones óptimos.",
+    "downloadButton": "Descargar la puntuación de precisión",
+    "readyToGenerate": "Presione \"Generar música\" ahora. Los controles deslizantes están configurados en posiciones óptimas.",
+    "fastSearchDesc": "Búsqueda rápida: ~1 minuto, 30 evaluaciones (cuadrícula 5×5 + 5 Bayesiano). Bueno para resultados rápidos, pero puede perder patrones óptimos.",
+    "deepSearchDesc": "Búsqueda profunda: ~10 minutos, 140 evaluaciones (cuadrícula 10×10 + 40 Bayesiano). Más exhaustiva, mayor probabilidad de encontrar patrones óptimos.",
+    "downloadNote": "Después del análisis, puede descargar todos los pares evaluados con puntuaciones de calidad como una tabla CSV."  }
 }

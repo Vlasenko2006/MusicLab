@@ -129,6 +129,15 @@ body {
     }
 }
 
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
 /* ========================================
    Header
    ======================================== */
@@ -2008,4 +2017,20 @@ body {
         height: 65vh;
         max-height: 450px;
     }
+}
+
+/* ========================================
+   Search Mode Buttons
+   ======================================== */
+.search-mode-btn {
+    transition: all 0.2s ease;
+}
+
+.search-mode-btn:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+.search-mode-btn.active {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
 }

@@ -107,6 +107,24 @@
     "why16StructureDesc": "16 segundos tipicamente capturam 1-2 frases musicais ou compassos (dependendo do tempo), o que é contexto suficiente para fusão criativa.",
     "why16Focus": "Foco:",
     "why16FocusDesc": "Isso força você a escolher a parte mais interessante de cada faixa, levando a resultados mais criativos!",
+    "qualityControl": "Controle de Qualidade",
+    "qualityControlDesc": "O MusicLab busca fundir ambas as faixas igualmente, aproximadamente 50%/50% (±10%). Nosso crítico de IA, uma rede neural convolucional treinada junto com o modelo criativo, calcula uma pontuação de qualidade que representa quão bem os padrões escolhidos se encaixam para a fusão. Pense nisso como a opinião de um amigo conhecedor - você pode confiar nela ou tomar sua própria decisão!",
+    "aiOptimization": "Otimização de Padrões com IA",
+    "aiOptimizationDesc": "O botão \"Encontrar Padrões Musicais Adequados com IA\" usa inteligência artificial para descobrir as melhores combinações de padrões para fusão. Quando você pressiona este botão, o crítico de IA avalia padrões usando métodos de busca em grade e otimização bayesiana para encontrar os segmentos mais adequados. Este processo geralmente leva alguns segundos em hardware GPU, mas pode levar vários minutos em CPU. Como o MusicLab está implantado em uma instância AWS t3.micro com recursos modestos, você precisará ser paciente. Mas vale a pena!",
+    "howItWorks": "Como Funciona",
+    "howItWorksDesc": "O processo de otimização usa uma abordagem híbrida:",
+    "howGrid": "Busca em Grade:",
+    "howGridDesc": "O sistema amostra 10 posições igualmente espaçadas de cada faixa e cria todos os pares possíveis (10 × 10 = 100 pares no total). Cada par contém um segmento da Faixa 1 e um da Faixa 2.",
+    "howQuality": "Avaliação de Qualidade:",
+    "howQualityDesc": "O crítico de IA calcula pontuações de qualidade para todos os 100 pares.",
+    "howBayesian": "Refinamento Bayesiano:",
+    "howBayesianDesc": "Usando essas pontuações iniciais, a análise de probabilidade bayesiana identifica 40 pares promissores adicionais que podem produzir pontuações de qualidade ainda mais altas.",
+    "howBest": "Seleção do Melhor Resultado:",
+    "howBestDesc": "Após avaliar todas as 140 combinações, o sistema move automaticamente os controles deslizantes para as posições correspondentes ao par com a pontuação mais alta.",
+    "downloadResults": "Download de Resultados",
+    "downloadResultsDesc": "Após a conclusão do cálculo, você pode baixar a tabela completa de pontuações de precisão clicando no botão \"Baixar Pontuação de Precisão\". O arquivo CSV contém colunas: Iteração, Início Faixa 1 (s), Início Faixa 2 (s), Pontuação de Qualidade (%), com linhas ordenadas por pontuação de qualidade em ordem decrescente.",
+    "nextSteps": "Próximos Passos",
+    "nextStepsDesc": "Uma vez encontradas as posições ideais, pressione \"Gerar Padrão\" para criar o áudio fundido usando esses segmentos melhor combinados.",
     "tips": "Dicas para Melhores Resultados",
     "tipRhythm": "Ritmos Complementares",
     "tipRhythmDesc": "Escolha uma faixa com batida forte e outra com melodia convincente. Isso cria uma interação interessante entre elementos rítmicos e melódicos.",
@@ -130,7 +148,15 @@
     "helpInspiration": "Inspiração criativa e sugestões para sua próxima fusão",
     "helpTrouble": "Solução de problemas que você encontrar",
     "helpConversation": "O MusicNote mantém o histórico de conversas durante toda a sua sessão, para que você possa ter um diálogo natural sobre seu processo de criação musical. O chatbot é conhecedor, amigável e está sempre pronto para ajudá-lo a criar a música mais criativa possível!"
-  },  "chatbot": {
+  },  "optimizer": {
+    "fastSearch": "Pesquisa rápida",
+    "deepSearch": "Pesquisa profunda",
+    "findButton": "Encontrar padrões musicais adequados com IA",
+    "fastSearchDesc": "⚡ Pesquisa rápida: ~1 minuto, 30 avaliações (grade 5×5 + 5 bayesianas). Bom para resultados rápidos, mas pode perder padrões ideais.",
+    "deepSearchDesc": "🔍 Pesquisa profunda: ~10 minutos, 140 avaliações (grade 10×10 + 40 bayesianas). Análise mais completa, provavelmente encontra padrões ideais.",
+    "downloadNote": "Após a análise, você pode baixar todos os pares avaliados com pontuações de qualidade em uma tabela CSV."
+  },
+  "chatbot": {
     "welcome": "Olá! 🎵 Sou a Rita, sua assistente musical de IA. Posso ajudá-lo com:<br><br>• Entender como o MusicLab funciona<br>• Escolher os melhores padrões para fusão<br>• Teoria musical e dicas de produção<br>• Perguntas técnicas sobre o modelo<br><br>O que você gostaria de saber?"
   },  "examples": {
     "title": "Exemplos de Geração Musical",
@@ -141,6 +167,15 @@
     "inputA": "Faixa de entrada A: Vivaldi - Agosto (Tempestade)",
     "inputB": "Faixa de entrada B: Emir Kusturica - Djinji Dinji",
     "output": "Saída Gerada",
-    "exampleDesc": "Este exemplo demonstra como o MusicLab funde dois padrões musicais distintos em uma composição única. A IA aprende com ambas as faixas de entrada e gera nova música que combina suas características."
-  }
+    "exampleDesc": "Este exemplo demonstra como o MusicLab funde dois padrões musicais distintos em uma composição única. A IA aprende com ambas as faixas de entrada e gera nova música que combina suas características."  },
+  "optimizer": {
+    "fastSearch": "Pesquisa rápida",
+    "deepSearch": "Pesquisa profunda",
+    "findButton": "Encontrar padrões musicais adequados com IA",
+    "annotation": "Deixe a IA encontrar seus padrões. Pesquisa rápida - 1 minuto. Bom para resultados rápidos, mas pode perder padrões ideais. Pesquisa profunda - 10 minutos, encontra padrões ideais.",
+    "downloadButton": "Baixar a pontuação de precisão",
+    "readyToGenerate": "Pressione \"Gerar música\" agora. Os controles deslizantes estão configurados em posições ideais.",
+    "fastSearchDesc": "Pesquisa rápida: ~1 minuto, 30 avaliações (grade 5×5 + 5 Bayesiana). Bom para resultados rápidos, mas pode perder padrões ideais.",
+    "deepSearchDesc": "Pesquisa profunda: ~10 minutos, 140 avaliações (grade 10×10 + 40 Bayesiana). Mais completa, maior chance de encontrar padrões ideais.",
+    "downloadNote": "Após a análise, você pode baixar todos os pares avaliados com pontuações de qualidade como uma tabela CSV."  }
 }

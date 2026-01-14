@@ -107,6 +107,24 @@
     "why16StructureDesc": "16 secondes capturent généralement 1-2 phrases musicales ou mesures (selon le tempo), ce qui est suffisant comme contexte pour la fusion créative.",
     "why16Focus": "Concentration:",
     "why16FocusDesc": "Cela vous oblige à choisir la partie la plus intéressante de chaque piste, ce qui conduit à des résultats plus créatifs!",
+    "qualityControl": "Contrôle de Qualité",
+    "qualityControlDesc": "MusicLab vise à fusionner les deux pistes de manière égale, environ 50%/50% (±10%). Notre critique IA, un réseau neuronal convolutif entraîné aux côtés du modèle créatif, calcule un score de qualité qui représente dans quelle mesure les motifs choisis s'adaptent ensemble pour la fusion. Considérez-le comme l'opinion d'un ami compétent - vous pouvez lui faire confiance ou prendre votre propre décision!",
+    "aiOptimization": "Optimisation des Motifs par IA",
+    "aiOptimizationDesc": "Le bouton \"Trouver les Motifs Musicaux Adaptés avec l'IA\" utilise l'intelligence artificielle pour découvrir les meilleures combinaisons de motifs pour la fusion. Lorsque vous appuyez sur ce bouton, le critique IA évalue les motifs en utilisant à la fois la recherche en grille et les méthodes d'optimisation bayésiennes pour trouver les segments les plus appropriés. Ce processus prend généralement quelques secondes sur du matériel GPU, mais peut prendre plusieurs minutes sur CPU. Comme MusicLab est déployé sur une instance AWS t3.micro avec des ressources modestes, vous devrez être patient. Mais ça vaut le coup!",
+    "howItWorks": "Comment Ça Marche",
+    "howItWorksDesc": "Le processus d'optimisation utilise une approche hybride:",
+    "howGrid": "Recherche en Grille:",
+    "howGridDesc": "Le système échantillonne 10 positions également espacées de chaque piste et crée toutes les paires possibles (10 × 10 = 100 paires au total). Chaque paire contient un segment de la Piste 1 et un de la Piste 2.",
+    "howQuality": "Évaluation de la Qualité:",
+    "howQualityDesc": "Le critique IA calcule les scores de qualité pour toutes les 100 paires.",
+    "howBayesian": "Raffinement Bayésien:",
+    "howBayesianDesc": "En utilisant ces scores initiaux, l'analyse de probabilité bayésienne identifie 40 paires prometteuses supplémentaires qui pourraient produire des scores de qualité encore plus élevés.",
+    "howBest": "Sélection du Meilleur Résultat:",
+    "howBestDesc": "Après avoir évalué toutes les 140 combinaisons, le système déplace automatiquement les curseurs vers les positions correspondant à la paire ayant le score le plus élevé.",
+    "downloadResults": "Téléchargement des Résultats",
+    "downloadResultsDesc": "Une fois le calcul terminé, vous pouvez télécharger le tableau complet des scores de précision en cliquant sur le bouton \"Télécharger le Score de Précision\". Le fichier CSV contient les colonnes: Itération, Début Piste 1 (s), Début Piste 2 (s), Score de Qualité (%), avec les lignes triées par score de qualité dans l'ordre décroissant.",
+    "nextSteps": "Prochaines Étapes",
+    "nextStepsDesc": "Une fois les positions optimales trouvées, appuyez sur \"Générer le Motif\" pour créer l'audio fusionné en utilisant ces segments les mieux assortis.",
     "tips": "Conseils pour de Meilleurs Résultats",
     "tipRhythm": "Rythmes Complémentaires",
     "tipRhythmDesc": "Choisissez une piste avec un rythme fort et une autre avec une mélodie convaincante. Cela crée une interaction intéressante entre les éléments rythmiques et mélodiques.",
@@ -131,6 +149,14 @@
     "helpTrouble": "Résolution des problèmes que vous rencontrez",
     "helpConversation": "MusicNote conserve l'historique des conversations tout au long de votre session, vous permettant d'avoir un dialogue naturel sur votre processus de création musicale. Le chatbot est compétent, amical et toujours prêt à vous aider à créer la musique la plus créative possible!"
   },
+  "optimizer": {
+    "fastSearch": "Recherche rapide",
+    "deepSearch": "Recherche approfondie",
+    "findButton": "Trouver des motifs musicaux adaptés avec l'IA",
+    "fastSearchDesc": "⚡ Recherche rapide: ~1 minute, 30 évaluations (grille 5×5 + 5 bayésiennes). Bon pour des résultats rapides, mais peut manquer les motifs optimaux.",
+    "deepSearchDesc": "🔍 Recherche approfondie: ~10 minutes, 140 évaluations (grille 10×10 + 40 bayésiennes). Analyse plus complète, trouve très probablement les motifs optimaux.",
+    "downloadNote": "Après l'analyse, vous pouvez télécharger toutes les paires évaluées avec les scores de qualité dans un tableau CSV."
+  },
   "chatbot": {
     "welcome": "Salut! 🎵 Je suis Rita, votre assistante musicale IA. Je peux vous aider avec:<br><br>• Comprendre comment fonctionne MusicLab<br>• Choisir les meilleurs motifs pour la fusion<br>• Théorie musicale et conseils de production<br>• Questions techniques sur le modèle<br><br>Que souhaitez-vous savoir?"
   },
@@ -143,6 +169,15 @@
     "inputA": "Piste d'entrée A: Vivaldi - Août (Tempête)",
     "inputB": "Piste d'entrée B: Emir Kusturica - Djinji Dinji",
     "output": "Sortie Générée",
-    "exampleDesc": "Cet exemple démontre comment MusicLab fusionne deux motifs musicaux distincts en une composition unique. L'IA apprend des deux pistes d'entrée et génère une nouvelle musique qui combine leurs caractéristiques."
-  }
+    "exampleDesc": "Cet exemple démontre comment MusicLab fusionne deux motifs musicaux distincts en une composition unique. L'IA apprend des deux pistes d'entrée et génère une nouvelle musique qui combine leurs caractéristiques."  },
+  "optimizer": {
+    "fastSearch": "Recherche rapide",
+    "deepSearch": "Recherche approfondie",
+    "findButton": "Trouver des motifs musicaux adaptés avec l'IA",
+    "annotation": "Laissez l'IA trouver vos motifs. Recherche rapide - 1 minute. Bon pour des résultats rapides, mais peut manquer des motifs optimaux. Recherche approfondie - 10 minutes, trouve des motifs optimaux.",
+    "downloadButton": "Télécharger le score de précision",
+    "readyToGenerate": "Appuyez sur \"Générer de la musique\" maintenant. Les curseurs sont réglés sur des positions optimales.",
+    "fastSearchDesc": "Recherche rapide : ~1 minute, 30 évaluations (grille 5×5 + 5 Bayésien). Bon pour des résultats rapides, mais peut manquer des motifs optimaux.",
+    "deepSearchDesc": "Recherche approfondie : ~10 minutes, 140 évaluations (grille 10×10 + 40 Bayésien). Plus approfondie, chances plus élevées de trouver des motifs optimaux.",
+    "downloadNote": "Après l'analyse, vous pouvez télécharger toutes les paires évaluées avec les scores de qualité sous forme de tableau CSV."  }
 }

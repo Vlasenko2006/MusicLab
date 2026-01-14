@@ -107,6 +107,24 @@
     "why16StructureDesc": "16 Sekunden erfassen typischerweise 1-2 musikalische Phrasen oder Takte (je nach Tempo), was genug Kontext für kreative Fusion ist.",
     "why16Focus": "Fokus:",
     "why16FocusDesc": "Es zwingt dich, den interessantesten Teil jedes Tracks zu wählen, was zu kreativeren Ergebnissen führt!",
+    "qualityControl": "Qualitätskontrolle",
+    "qualityControlDesc": "MusicLab zielt darauf ab, beide Tracks gleichmäßig zu fusionieren, ungefähr 50%/50% (±10%). Unser KI-Kritiker, ein konvolutionelles neuronales Netzwerk, das zusammen mit dem kreativen Modell trainiert wurde, berechnet einen Qualitätswert, der zeigt, wie gut die gewählten Muster zusammenpassen. Betrachte es als Meinung eines sachkundigen Freundes – du kannst ihr vertrauen oder deine eigene Entscheidung treffen!",
+    "aiOptimization": "KI-Musteroptimierung",
+    "aiOptimizationDesc": "Die Schaltfläche 'Passende Musikmuster mit KI finden' nutzt künstliche Intelligenz, um die besten Musterkombinationen für die Fusion zu entdecken. Wenn du diese Schaltfläche drückst, bewertet der KI-Kritiker Muster mithilfe von Rastersuche und Bayes'schen Optimierungsmethoden, um die am besten geeigneten Segmente zu finden. Dieser Prozess dauert auf GPU-Hardware normalerweise einige Sekunden, auf CPUs jedoch mehrere Minuten. Da MusicLab auf einer AWS t3.micro-Instanz mit bescheidenen Ressourcen betrieben wird, musst du geduldig sein. Aber es lohnt sich!",
+    "howItWorks": "Wie es funktioniert",
+    "howItWorksDesc": "Der Optimierungsprozess verwendet einen hybriden Ansatz:",
+    "howGrid": "Rastersuche:",
+    "howGridDesc": "Das System sampelt 10 gleichmäßig verteilte Positionen aus jedem Track und erstellt alle möglichen Paare (10 × 10 = 100 Paare insgesamt). Jedes Paar enthält ein Segment aus Track 1 und eines aus Track 2.",
+    "howQuality": "Qualitätsbewertung:",
+    "howQualityDesc": "Der KI-Kritiker berechnet Qualitätswerte für alle 100 Paare.",
+    "howBayesian": "Bayes'sche Verfeinerung:",
+    "howBayesianDesc": "Mithilfe dieser anfänglichen Werte identifiziert die Bayes'sche Wahrscheinlichkeitsanalyse 40 zusätzliche vielversprechende Paare, die möglicherweise noch höhere Qualitätswerte erzielen.",
+    "howBest": "Auswahl des besten Ergebnisses:",
+    "howBestDesc": "Nach der Bewertung aller 140 Kombinationen bewegt das System automatisch die Schieberegler zu den Positionen, die dem höchstbewerteten Paar entsprechen.",
+    "downloadResults": "Ergebnisse herunterladen",
+    "downloadResultsDesc": "Nach Abschluss der Berechnung kannst du die vollständige Genauigkeitswert-Tabelle herunterladen, indem du auf die Schaltfläche 'Genauigkeitswert herunterladen' klickst. Die CSV-Datei enthält Spalten: Iteration, Track 1 Start (s), Track 2 Start (s), Qualitätswert (%), wobei die Zeilen nach Qualitätswert in absteigender Reihenfolge sortiert sind.",
+    "nextSteps": "Nächste Schritte",
+    "nextStepsDesc": "Sobald die optimalen Positionen gefunden sind, drücke 'Muster generieren', um das fusionierte Audio mit diesen am besten passenden Segmenten zu erstellen.",
     "tips": "Tipps für beste Ergebnisse",
     "tipRhythm": "Komplementäre Rhythmen",
     "tipRhythmDesc": "Wähle einen Track mit starkem Beat und einen anderen mit überzeugender Melodie. Dies erzeugt interessantes Zusammenspiel zwischen Rhythmus und melodischen Elementen.",
@@ -130,7 +148,15 @@
     "helpInspiration": "Kreative Inspiration und Vorschläge für deine nächste Fusion",
     "helpTrouble": "Fehlerbehebung bei auftretenden Problemen",
     "helpConversation": "MusicNote behält den Gesprächsverlauf während deiner Sitzung bei, sodass du einen natürlichen Dialog über deinen Musikschaffungsprozess führen kannst. Der Chatbot ist sachkundig, freundlich und immer bereit, dir zu helfen, die kreativste Musik zu erstellen!"
-  },  "chatbot": {
+  },  "optimizer": {
+    "fastSearch": "Schnellsuche",
+    "deepSearch": "Tiefensuche",
+    "findButton": "Passende Musikmuster mit KI finden",
+    "fastSearchDesc": "⚡ Schnellsuche: ~1 Minute, 30 Auswertungen (5×5 Raster + 5 Bayesianisch). Gut für schnelle Ergebnisse, kann aber optimale Muster verpassen.",
+    "deepSearchDesc": "🔍 Tiefensuche: ~10 Minuten, 140 Auswertungen (10×10 Raster + 40 Bayesianisch). Gründlichere Analyse, findet wahrscheinlich optimale Muster.",
+    "downloadNote": "Nach der Analyse können Sie alle bewerteten Paare mit Qualitätswerten als CSV-Tabelle herunterladen."
+  },
+  "chatbot": {
     "welcome": "Hallo! 🎵 Ich bin Rita, dein KI-Musikassistent. Ich kann dir helfen mit:<br><br>• Verständnis, wie MusicLab funktioniert<br>• Auswahl der besten Muster für die Fusion<br>• Musiktheorie und Produktionstipps<br>• Technischen Fragen zum Modell<br><br>Was möchtest du wissen?"
   },  "examples": {
     "title": "Musik Generations Beispiele",
@@ -142,5 +168,16 @@
     "inputB": "Eingangs-Track B: Emir Kusturica - Djinji Dinji",
     "output": "Generierte Ausgabe",
     "exampleDesc": "Dieses Beispiel demonstriert, wie MusicLab zwei unterschiedliche musikalische Muster in eine einzigartige Komposition fusioniert. Die KI lernt von beiden Eingangstracks und generiert neue Musik, die ihre Eigenschaften kombiniert."
+  },
+  "optimizer": {
+    "fastSearch": "Schnellsuche",
+    "deepSearch": "Tiefensuche",
+    "findButton": "Mit KI passende Musikmuster finden",
+    "annotation": "Lassen Sie KI Ihre Muster finden. Schnellsuche - 1 Minute. Gut für schnelle Ergebnisse, kann aber optimale Muster verpassen. Tiefensuche - 10 Minuten, findet optimale Muster.",
+    "downloadButton": "Genauigkeitsbewertung herunterladen",
+    "readyToGenerate": "Drücken Sie jetzt \"Musik generieren\". Schieberegler sind auf optimalen Positionen eingestellt.",
+    "fastSearchDesc": "Schnellsuche: ~1 Minute, 30 Auswertungen (5×5 Raster + 5 Bayesianisch). Gut für schnelle Ergebnisse, kann aber optimale Muster verpassen.",
+    "deepSearchDesc": "Tiefensuche: ~10 Minuten, 140 Auswertungen (10×10 Raster + 40 Bayesianisch). Gründlicher, höhere Chance optimale Muster zu finden.",
+    "downloadNote": "Nach der Analyse können Sie alle bewerteten Paare mit Qualitätsbewertungen als CSV-Tabelle herunterladen."
   }
 }

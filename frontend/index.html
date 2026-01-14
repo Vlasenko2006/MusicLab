@@ -274,6 +274,45 @@
                 </div>
 
                 <!-- Generate Section -->
+                <!-- Pattern Optimizer Frame -->
+                <div class="optimize-patterns-section" style="margin: 20px 0; padding: 20px; background: rgba(102, 126, 234, 0.05); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.15); display: none;" id="optimize-section">
+                    <!-- Title -->
+                    <h3 style="margin: 0 0 15px 0; text-align: center; color: #4c5fd5; font-size: 18px; font-weight: 600;">
+                        ✨ <span data-i18n="optimizer.findButton">Find Fitting Music Patterns with AI</span>
+                    </h3>
+                    
+                    <!-- Annotation -->
+                    <p style="margin: 0 0 15px 0; text-align: center; color: #666; font-size: 13px; line-height: 1.5;">
+                        <span data-i18n="optimizer.annotation">Let AI find your patterns. Fast search - 1 minute. Good for quick results, but may miss optimal patterns. Deep Search - 10 minutes, find optimal patterns.</span>
+                    </p>
+                    
+                    <!-- Search Mode Buttons -->
+                    <div class="search-mode-container" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 15px; max-width: 420px; margin-left: auto; margin-right: auto;">
+                        <button id="fast-search-btn" class="search-mode-btn" data-mode="fast" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); flex: 1;">
+                            <span data-i18n="optimizer.fastSearch">Fast Search</span>
+                        </button>
+                        <button id="deep-search-btn" class="search-mode-btn" data-mode="deep" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); flex: 1;">
+                            <span data-i18n="optimizer.deepSearch">Deep Search</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Download Button (shown after optimization) -->
+                    <div id="download-results-container" style="display: none; text-align: center; margin-bottom: 15px;">
+                        <button id="download-results-btn" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                            📥 <span data-i18n="optimizer.downloadButton">Download the Accuracy Score</span>
+                        </button>
+                        <p style="margin: 10px 0 0 0; color: white; font-size: 26px; font-weight: 500; line-height: 1.4;">
+                            <span data-i18n="optimizer.readyToGenerate">Press "Generate Music" now. Sliders are set to optimal positions.</span>
+                        </p>
+                    </div>
+                    
+                    <div id="optimize-progress" style="display: none; margin-top: 15px; padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px;">
+                        <div class="progress-bar" style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+                            <div id="optimize-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.3s; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);"></div>
+                        </div>
+                        <p id="optimize-status" style="color: #555; font-size: 14px;">Analyzing patterns...</p>
+                    </div>
+                </div>
                 <div class="generate-section" id="generate-section" style="display: none;">
                     <div class="generate-card">
                         <div class="generate-header">
@@ -714,6 +753,49 @@
                 </section>
 
                 <section class="about-section">
+                    <h3 data-i18n="about.qualityControl">Quality Control & AI Optimization</h3>
+                    <p data-i18n="about.aiOptimization">
+                        Not sure where to start? Let our AI find the perfect patterns for you! 
+                        Click the "✨ Find Fitting Music Patterns with AI" button to automatically 
+                        discover the optimal 16-second segments from both tracks that work best together.
+                    </p>
+                    
+                    <h4 data-i18n="about.howItWorks">How It Works:</h4>
+                    <ul>
+                        <li data-i18n="about.howGrid">
+                            <strong>Grid Search:</strong> The AI evaluates 100 different combinations 
+                            (10×10 grid) across both tracks to find promising starting points.
+                        </li>
+                        <li data-i18n="about.howQuality">
+                            <strong>Quality Scoring:</strong> Each combination is scored using our 
+                            AudioDiscriminator (music critic) which evaluates harmonic compatibility, 
+                            rhythmic coherence, and overall musical quality.
+                        </li>
+                        <li data-i18n="about.howBayesian">
+                            <strong>Bayesian Optimization:</strong> The AI then performs 40 additional 
+                            intelligent refinements around the best candidates to find the absolute 
+                            optimal match.
+                        </li>
+                        <li data-i18n="about.howBest">
+                            <strong>Best Match Selected:</strong> Out of 140 total evaluations, the 
+                            AI automatically selects and sets the highest-scoring pattern combination.
+                        </li>
+                    </ul>
+                    
+                    <p data-i18n="about.downloadResults">
+                        <strong>Download Results:</strong> After optimization completes, click 
+                        "📥 Download the Accuracy Score" to get a CSV file with all 140 evaluations, 
+                        ranked by quality score. This lets you explore alternative pattern combinations!
+                    </p>
+                    
+                    <p data-i18n="about.nextSteps">
+                        The optimization takes approximately 5-10 minutes on CPU. Once complete, 
+                        the sliders will automatically move to the optimal positions, and you can 
+                        click "Generate Pattern" to create your music!
+                    </p>
+                </section>
+
+                <section class="about-section">
                     <h3 data-i18n="about.technical">Technical Details</h3>
                     <ul>
                         <li><strong>Model:</strong> SimpleTransformer with 16.7 million parameters</li>
@@ -752,6 +834,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>

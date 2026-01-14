@@ -16,3 +16,5 @@ numpy==1.24.3
 # Chatbot
 groq>=0.11.0
 pyyaml==6.0.1
+scikit-optimize==0.9.0
+pydub==0.25.1

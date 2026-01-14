@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""
+Pattern Optimizer for MusicLab
+Finds optimal 16-second pairs in uploaded audio files
+"""
+import torch
+import numpy as np
+import soundfile as sf
+from skopt import gp_minimize
+from skopt.space import Real
+import logging
+
+logger = logging.getLogger(__name__)
+
+def find_optimal_patterns(audio1_path, audio2_path, model, encodec_model, device='cpu'):
+    """
+    Find optimal 16-second patterns in two audio files
+    
+    Returns: (best_start1, best_start2, score)
+    """
+    # Load audio
+    print(f"[OPTIMIZER] Starting: audio1={audio1_path}, audio2={audio2_path}")
+    audio1, sr1 = sf.read(audio1_path)
+    audio2, sr2 = sf.read(audio2_path)
+    print(f"[OPTIMIZER] Loaded audio: sr1={sr1}, sr2={sr2}, len1={len(audio1)}, len2={len(audio2)}")
+    
+    if audio1.ndim == 2:
+        audio2 = audio2.mean(axis=1)
+    
+    duration1 = len(audio1) / sr1
+    duration2 = len(audio2) / sr2
+    
+    # Search space (time positions in seconds)
+    search_space = [
+        Real(0, max(0, duration1 - 16), name='start1'),
+        Real(0, max(0, duration2 - 16), name='start2')
+    ]
+    
+    
+    iteration_counter = [0]  # Mutable list to track iterations
+        def evaluate_pair(params):
+        start1, start2 = params
+        print(f"[EVAL] Iteration: start1={start1:.1f}s, start2={start2:.1f}s")        
+        # Extract 16s segments
+        iteration_counter[0] += 1
+        print(f"[EVAL {iteration_counter[0]}/2] Evaluating: start1={start1:.1f}s, start2={start2:.1f}s")        idx1_start = int(start1 * sr1)
+        idx1_end = idx1_start + int(16 * sr1)
+        idx2_start = int(start2 * sr2)
+        idx2_end = idx2_start + int(16 * sr2)
+        
+        seg1 = audio1[idx1_start:idx1_end]
+        seg2 = audio2[idx2_start:idx2_end]
+        
+        # Encode
+        with torch.no_grad():
+            t1 = torch.from_numpy(seg1).float().unsqueeze(0).unsqueeze(0).to(device)
+            t2 = torch.from_numpy(seg2).float().unsqueeze(0).unsqueeze(0).to(device)
+            
+            enc1 = encodec_model.encoder(t1)
+            enc2 = encodec_model.encoder(t2)
+            
+            # Generate output
+            output = model(enc1, enc2)
+            if isinstance(output, tuple):
+                output = output[0]
+            
+            # Decode
+            result = encodec_model.decoder(output)
+            result_audio = result.squeeze().cpu().numpy()
+        
+        # Score: RMS + spectral diversity
+        rms = np.sqrt(np.mean(result_audio ** 2))
+        std = np.std(result_audio)
+        
+        # Higher score = better
+        score = rms * 10 + std * 5
+        
+        return -score  # Negative for minimization
+    
+        print(f"[EVAL] Score: rms={rms:.4f}, std={std:.4f}, total_score={score:.4f}")    # Bayesian optimization
+    result = gp_minimize(
+        evaluate_pair,
+        search_space,
+        n_calls=2,
+        n_initial_points=1,
+        random_state=42,
+        verbose=False
+    )
+    
+    best_start1, best_start2 = result.x
+    best_score = -result.fun
+    
+    return float(best_start1), float(best_start2), float(best_score)
